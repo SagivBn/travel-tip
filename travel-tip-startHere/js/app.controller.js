@@ -1,6 +1,9 @@
 import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
 
+// window.app = {
+//     onSearchLocation
+// }
 
 window.onload = onInit
 window.onAddMarker = onAddMarker
@@ -9,12 +12,15 @@ window.onGetLocs = onGetLocs
 window.onGetUserPos = onGetUserPos
 window.onSearchPlace = onSearchPlace
 window.onDeleteLoc = onDeleteLoc
+window.onSearchLocation = onSearchLocation
+window.onCopyTxt = onCopyTxt
 
 function onInit() {
     const elInput = document.querySelector('[name=search-loc]')
     // elInput.addEventListener('input', mapService.debounce(onGetLocs, 1000))
-    console.log('elInput:', elInput)
-    mapService.initMap()
+    // console.log('elInput:', elInput)
+    mapService
+        .initMap()
         .then(() => {
             console.log('Map is ready')
         })
@@ -36,65 +42,86 @@ function onAddMarker() {
 
 function onGetLocs() {
     locService.getLocs()
-        .then(locs => {
+        .then((locs) => {
             console.log('Locations:', locs)
             // document.querySelector('.locs').innerText = JSON.stringify(locs, null, 2)
             let strHtml = ''
-            locs.map(loc => {
+            locs.map((loc) => {
                 strHtml += `
                 <tr>
                 <td>${loc.id}</td>
                 <td>${loc.name}</td>
                 <td>${loc.lat}</td>
                 <td>${loc.lng}</td>
+                <td>${new Date(loc.createdAt).toLocaleString()}</td>
                 <td ><button onclick="onDeleteLoc(${loc.id})">Delete</button></td>
-                <td ><button onclick="onGotoLoc(this)">Go To</button></td>
+                <td ><button onclick="onPanTo(${loc.lat},${loc.lng})">Go To</button></td>
                 </tr>`
             }).join('')
             document.querySelector('table .location-display').innerHTML = strHtml
         })
+    document.querySelector('.btn-get-locs').classList.add('hide')
+    document.querySelector('.loc-table').classList.remove('hide')
 }
 
 function onGetUserPos() {
     getPosition()
-        .then(pos => {
+        .then((pos) => {
             console.log('User position is:', pos.coords)
-            document.querySelector('.user-pos').innerText =
-                `Latitude: ${pos.coords.latitude} - Longitude: ${pos.coords.longitude}`
+            document.querySelector(
+                '.user-pos'
+            ).innerText = `Latitude: ${pos.coords.latitude} - Longitude: ${pos.coords.longitude}`
             mapService.panTo(pos.coords.latitude, pos.coords.longitude)
-            marker = mapService.addMarker({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+            marker = mapService.addMarker({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude
+            })
             // gMarker = marker
         })
-        .catch(err => {
+        .catch((err) => {
             console.log('err!!!', err)
         })
 }
-function onPanTo() {
+function onPanTo(lat, lng) {
     console.log('Panning the Map')
-    mapService.panTo(35.6895, 139.6917)
-}
-
-function onSearchPlace(elPlace) {
-    // console.log('elPlace:', elPlace)
-    const searchBox = new google.maps.places.SearchBox(elPlace)
-    // map.controls[google.maps.ControlPosition.TOP_LEFT].push(elPlace)
-    // map.addListener("bounds_changed", () => {
-    // searchBox.setBounds(map.getBounds() as google.maps.LatLngBounds)
-    //   })
-    google.maps.event.addListener(searchBox, 'place_changed', function () {
-        var places = searchBox.getPlaces();
-        var bounds = new google.maps.LatLngBounds();
-        var i, place;
-        for (i = 0; palce = places[i]; i++) {
-            bounds.extend(place.geometry.location);
-            marker.setPosition(place.geometry.location);
-        }
-        map.fitBounds(bounds);
-        map.setZoom(12);
+    // mapService.panTo(35.6895, 139.6917)
+    mapService.panTo(lat, lng)
+    locService.showWeather(lat, lng)
+    .then((cords) => {
+        console.log('cords:', cords)
     })
+    document.querySelector('.btn-get-locs').classList.remove('hide')
+    document.querySelector('.loc-table').classList.add('hide')
 }
 
 function onDeleteLoc(locId) {
     locService.deleteLoc(locId)
-// console.log('locId:', locId)
+    // console.log('locId:', locId)
+}
+
+function onSearchLocation(ev) {
+    ev.preventDefault()
+    // console.log('ev:', ev)
+    const elSearch = document.querySelector('[type=search]')
+    const location = elSearch.value
+    // console.log('location:', location)
+    locService.getLocCords(location)
+        .then((cords) => {
+            onPanTo(cords.lat, cords.lng)
+        })
+}
+
+function onCopyTxt() {
+    /* Get the text field */
+    const copyText = 'https://SagivBn.github.io/travel-tip/'
+
+    /* Select the text field */
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+    /* Copy the text inside the text field */
+    navigator.clipboard.writeText(copyText);
+
+    /* Alert the copied text */
+    alert("Copied the text: " + copyText);
 }

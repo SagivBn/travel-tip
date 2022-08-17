@@ -9,33 +9,45 @@
 </head>
 
 <body>
-    <h1>TravelTip Starter</h1>
-    <input type="search" name="search-loc" oninput="onSearchPlace(this.value)">
-    <div id="map" style="width: 100%; height: 400px;"></div>
-    <button onclick="onAddMarker()" class="btn-add-marker">Add Marker Speific Location</button>
-    <button onclick="onGetUserPos()" class="btn-user-pos">Get User Position</button>
-    <button onclick="onGetLocs()" class="btn-get-locs">Get Locations</button>
-    <button onclick="onPanTo()" class="btn-pan">Pan Map to Tokyo</button>
-    
+    <header class="main-header">
+        <h1>TravelTip Starter</h1>
+        <div class="header-user-acts">
+            <form onsubmit="onSearchLocation(event)">
+                <input type="search" name="loc-search" placeholder="Please enter a place">
+            </form>
+            <button onclick="onGetUserPos()" class="btn-user-pos">Get User Position</button>
+        </div>
+    </header>
+    <button onclick="onCopyTxt()">Copy text</button>
+    <main class="main-section">
+        <div class="map-section">
+            <div id="map" style="width: 100%; height: 400px;"></div>
+        </div>
+        .
+        <!-- <button onclick="onAddMarker()" class="btn-add-marker">Add Marker Speific Location</button> -->
+        <!-- <button onclick="onPanTo()" class="btn-pan">Pan Map to Tokyo</button> -->
 
-    <p>You are at: <span class="user-pos"></span></p>
-    <p>Locations:
-        <!-- <pre class="locs"> -->
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>NAME</th>
-                <th>LAT</th>
-                <th>LNG</th>
-            </tr>
-        </thead>
-        <tbody class="location-display"></tbody>
-    </table>
-    <!-- </pre> -->
-    </p>
+        <div class="main-user-acts">
+            <p>You are at: <span class="user-pos"></span></p>
+            <!-- <pre class="locs"> -->
+            <button onclick="onGetLocs()" class="btn-get-locs">Get Locations</button>
+            <table class="hide loc-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NAME</th>
+                        <th>LAT</th>
+                        <th>LNG</th>
+                        <th>CREATED AT</th>
+                    </tr>
+                </thead>
+                <tbody class="location-display"></tbody>
+            </table>
+            <!-- </pre> -->
 
-
+        </div>
+    </main>
+    <script src="lib/axios.js"></script>
     <script type="module" src="js/app.controller.js"></script>
 </body>
 
