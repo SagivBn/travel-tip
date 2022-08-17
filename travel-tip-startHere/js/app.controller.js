@@ -8,7 +8,7 @@ window.onPanTo = onPanTo
 window.onGetLocs = onGetLocs
 window.onGetUserPos = onGetUserPos
 window.onSearchPlace = onSearchPlace
-
+window.onDeleteLoc = onDeleteLoc
 
 function onInit() {
     const elInput = document.querySelector('[name=search-loc]')
@@ -39,7 +39,19 @@ function onGetLocs() {
         .then(locs => {
             console.log('Locations:', locs)
             // document.querySelector('.locs').innerText = JSON.stringify(locs, null, 2)
-            document.querySelector('.locs').innerText = JSON.stringify(locs, null, 2)
+            let strHtml = ''
+            locs.map(loc => {
+                strHtml += `
+                <tr>
+                <td>${loc.id}</td>
+                <td>${loc.name}</td>
+                <td>${loc.lat}</td>
+                <td>${loc.lng}</td>
+                <td ><button onclick="onDeleteLoc(${loc.id})">Delete</button></td>
+                <td ><button onclick="onGotoLoc(this)">Go To</button></td>
+                </tr>`
+            }).join('')
+            document.querySelector('table .location-display').innerHTML = strHtml
         })
 }
 
@@ -63,22 +75,26 @@ function onPanTo() {
 }
 
 function onSearchPlace(elPlace) {
-// console.log('elPlace:', elPlace)
-const searchBox = new google.maps.places.SearchBox(elPlace)
-// map.controls[google.maps.ControlPosition.TOP_LEFT].push(elPlace)
-// map.addListener("bounds_changed", () => {
+    // console.log('elPlace:', elPlace)
+    const searchBox = new google.maps.places.SearchBox(elPlace)
+    // map.controls[google.maps.ControlPosition.TOP_LEFT].push(elPlace)
+    // map.addListener("bounds_changed", () => {
     // searchBox.setBounds(map.getBounds() as google.maps.LatLngBounds)
-//   })
-google.maps.event.addListener(searchBox , 'place_changed' , function(){
-    var places = searchBox.getPlaces();
-    var bounds =  new google.maps.LatLngBounds();
-    var i,place;
-    for( i = 0; palce = places[i]; i++)
-    {
-    bounds.extend(place.geometry.location);
-    marker.setPosition(place.geometry.location);
-    }
-    map.fitBounds(bounds);
-    map.setZoom(12);
-})
+    //   })
+    google.maps.event.addListener(searchBox, 'place_changed', function () {
+        var places = searchBox.getPlaces();
+        var bounds = new google.maps.LatLngBounds();
+        var i, place;
+        for (i = 0; palce = places[i]; i++) {
+            bounds.extend(place.geometry.location);
+            marker.setPosition(place.geometry.location);
+        }
+        map.fitBounds(bounds);
+        map.setZoom(12);
+    })
+}
+
+function onDeleteLoc(locId) {
+    locService.deleteLoc(locId)
+// console.log('locId:', locId)
 }

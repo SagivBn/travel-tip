@@ -6,7 +6,8 @@ import { storageService } from './storage.service.js'
 export const locService = {
     getLocs,
     createNewLoc,
-    addNewLoc
+    addNewLoc,
+    deleteLoc
 }
 const STORAGE_KEY = 'locsDB'
 
@@ -44,4 +45,18 @@ function addNewLoc(newLoc) {
     locs.push(newLoc)
     storageService.saveToStorage(STORAGE_KEY, locs)
     console.log('locs:', locs)
+}
+
+function deleteLoc(locId) {
+    const locIdx = locs.findIndex(loc=> locId === loc.id)
+    locs.splice(locIdx, 1)
+    storageService.saveToStorage(STORAGE_KEY, locs)
+}
+
+
+function getLocById(locId) {
+    const loc = locs.find(loc => loc.id === locId)
+
+    if (loc) return loc
+    return null
 }
