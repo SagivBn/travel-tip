@@ -1,7 +1,11 @@
+import { locService } from './loc.service.js'
+
+
 export const mapService = {
     initMap,
     addMarker,
-    panTo
+    panTo,
+    debounce
 }
 
 
@@ -20,17 +24,26 @@ function initMap(lat = 32.0749831, lng = 34.9120554) {
                 zoom: 15
             })
             console.log('Map!', gMap)
-            // map.addListener("click", (mapsMouseEvent) => {
 
-            //     const pos = JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
-            //     console.log('pos:', pos)
-            // })
+            gMap.addListener('click', mapsMouseEvent => {
+                const lat = mapsMouseEvent.latLng.lat()
+                const lng = mapsMouseEvent.latLng.lng()
+                const position = { lat, lng }
+                console.log('position:', position)
+                const name = prompt('Location name?')
+                const newLoc = locService.createNewLoc(position.lat, position.lng, name)
+                locService.addNewLoc(newLoc)
+                const laLatLng = new google.maps.LatLng(position.lat, position.lng)
+                gMap.panTo(laLatLng)
+                addMarker(position)
+            })
         })
 }
 
 function addMarker(loc) {
     // gMarker.setMap(null)
-    let marker = new google.maps.Marker({
+    // marker.setMap(null)
+   let marker = new google.maps.Marker({
         position: loc,
         map: gMap,
         title: 'Hello World!'
@@ -50,6 +63,8 @@ function _connectGoogleApi() {
     const API_KEY = 'AIzaSyCqKcNqorCJzdRv2YIRmnLVZdCHnBkWrsw'
     var elGoogleApi = document.createElement('script')
     elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`
+    // elGoogleApi.src = ` http://maps.google.com/maps/api/js?libraries=places&sensor=false?key=${API_KEY}`
+   
     elGoogleApi.async = true
     document.body.append(elGoogleApi)
 
@@ -59,17 +74,15 @@ function _connectGoogleApi() {
     })
 }
 
-// map.addListener('click', mapsMouseEvent => {
-//     const lat = mapsMouseEvent.latLng.lat();
-//     const lng = mapsMouseEvent.latLng.lng();
-//     const position = {lat, lng};
-//     const locationName = prompt('Enter location name');
-//     if (locationName) {
-//         onAddPlace(position, locationName);
+function debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
 
-//         new google.maps.Marker({
-//             position: position,
-//             map: map,
-//         });
-//     }
-// });
