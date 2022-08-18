@@ -130,6 +130,9 @@ function getLocCords(loc) {
             }
             // console.log('place:', place)
         })
+        .catch(()=>{
+            throw new Error('Something went wrong')
+        })
 }
 
 function showWeather(lat, lng){
@@ -140,7 +143,15 @@ function showWeather(lat, lng){
         )
         .then((res) => res.data)
         .then((res) => {
-            console.log('res:', res)
+            // console.log('res:', res)
+            return{
+                place: res.name,
+                country: res.sys.country,
+                weather: res.weather[0].description,
+                temp: res.main.temp,
+                humid: res.main.humidity,
+                // icon: `\${res.weather.icon}`
+            }
         })
         .catch(() => {
             throw new Error('Could not find weather')

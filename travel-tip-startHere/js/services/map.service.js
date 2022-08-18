@@ -38,11 +38,11 @@ function initMap(lat = 32.0749831, lng = 34.9120554) {
             locService.addNewLoc(position)
             locService.showWeather(position.lat, position.lng)
                 .then(res => {
-                    // console.log('res:', res)
+                    console.log('res:', res)
                     gMap.panTo(position)
                     addMarker(position)
                 })
-            // const laLatLng = new google.maps.LatLng(position.lat, position.lng)
+            return gMap
         })
     })
 }
